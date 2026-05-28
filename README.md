@@ -6,24 +6,10 @@
 
 The add-on starts a small web server inside Blender. In a typical setup, the chain looks like this:
 
-```mermaid
-flowchart LR
-    you([You])
-    ai([AI agent<br/><sub>Claude Code, Codex, …</sub>])
-    srv([HTTP server<br/><sub>inside Blender</sub>])
-    bl([Blender scene])
-
-    you  -->|plain English prompt| ai
-    ai   -->|Python script| srv
-    srv  -->|runs the script| bl
-    bl  -.->|result + printed output| srv
-    srv -.->|HTTP response| ai
-    ai  -.->|shows the result| you
-
-    style you fill:#e8f4ff,stroke:#4a90e2,stroke-width:2px
-    style ai  fill:#fff4e6,stroke:#e89c4a,stroke-width:2px
-    style srv fill:#eaf7ea,stroke:#52a352,stroke-width:2px
-    style bl  fill:#f4e8ff,stroke:#9a4ae2,stroke-width:2px
+```
+   You  ──prompt──▶  AI agent  ──script──▶  HTTP server  ──runs──▶  Blender
+    ▲                                                                   │
+    └─────────────────── result flows back ─────────────────────────────┘
 ```
 
 You tell the AI what you want in plain English. The AI (Claude Code, Codex, …) writes the Blender instructions for you and sends them to the add-on inside Blender. The add-on runs them, then hands back whatever happened — results, error messages, anything the script reported — for the AI to show you.
