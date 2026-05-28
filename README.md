@@ -12,36 +12,29 @@ The add-on starts a small web server inside Blender. In a typical setup, the cha
     └─────────────────── result flows back ─────────────────────────────┘
 ```
 
-You tell the AI what you want in plain English. The AI (Claude Code, Codex, …) writes the Blender instructions for you and sends them to the add-on inside Blender. The add-on runs them, then hands back whatever happened — results, error messages, anything the script reported — for the AI to show you.
+You tell the AI what you want; it writes the Blender instructions and sends them to the add-on. The add-on runs them and returns the result. You can also send instructions directly — any HTTP client works, no AI needed.
 
-You don't have to go through an AI. Anything on your computer that can send instructions can talk to the add-on directly — a small script, a web page, a one-line command in a terminal. The AI is just the easiest way in.
+Two run modes:
 
-The add-on runs your instructions in one of two styles:
+- **All at once.** Send, wait, get the result. Good for small tasks.
+- **Step by step, live.** Watch progress arrive in real time. Good for big tasks — you can stop midway if it looks wrong.
 
-- **All at once.** Send the instructions, wait, get the result back when they finish. Simple and quick — best for small tasks.
-- **Step by step, live.** Send the instructions and watch them play out — every status message, every step the script announces, every screenshot it saves — arriving as it happens. Best for bigger tasks, because you can see how it's going and stop it if something looks wrong.
+When a script is written as a series of named steps, Blender pauses between them so the viewport stays interactive — you can rotate the camera, watch objects appear one at a time, and cancel cleanly.
 
-There's one nice trick. If the instructions are written as a series of named steps, Blender does step one, pauses long enough for the viewport to update, does step two, pauses again, and so on. You can rotate the camera while it builds, watch objects appear one at a time, and cancel halfway through if you change your mind. It's the difference between Blender freezing for thirty seconds and watching the scene assemble itself.
+Scripts get a few shortcuts in scope automatically: take a screenshot, render a 6-angle audit, ask what's in the scene, save to a shared output folder.
 
-A few useful shortcuts are always available inside the instructions — for taking pictures of the scene, rendering it from six angles for review, asking what's currently in the scene, and saving files to a shared output folder. They're just there; no setup needed.
-
-The add-on only listens to your own computer. It can't be reached over the internet or by anyone else on your network. (If you want to expose it deliberately, read [SECURITY.md](SECURITY.md) first.)
+The add-on only listens on your own computer (`127.0.0.1`). See [SECURITY.md](SECURITY.md) before changing that.
 
 ## Why this exists — vs the official Blender MCP server
 
-With the official Blender [MCP](https://modelcontextprotocol.io/) server, the AI controls Blender through a fixed menu of pre-built tools — like a remote control with specific buttons. With Blender HTTP, the AI just writes Python — like having the keyboard. The remote works for what it covers; the keyboard is faster, cheaper, and never runs out of buttons.
+With the official Blender [MCP](https://modelcontextprotocol.io/) server, the AI controls Blender through a fixed menu of pre-built tools — like a remote with specific buttons. With Blender HTTP, the AI just writes Python — like having the keyboard.
 
-**Easier to set up.** Using MCP means installing the Blender add-on, installing a Python package on your system, editing a JSON config file in your AI tool, and restarting it. Using Blender HTTP means installing the Blender add-on and clicking "Start". The AI needs no special configuration on its side — it just sends HTTP requests, which every AI agent already knows how to do.
-
-**MCP gives the AI a fixed menu of buttons.** Around 20 of them — for things like adding objects, applying materials, asking what's in the scene, downloading assets. The AI carries that whole menu in its memory from the start of every conversation, even if you never use any of those buttons. With Blender HTTP there's no menu — the AI just writes the same kind of code it already knows.
-
-**More buttons means more wrong guesses.** On every step the AI has to ask itself, *"is there a button for this, or should I just write the code?"* Sometimes a button looks right but doesn't quite do what's needed — so the AI tries it, sees it didn't work, then writes the code anyway. Each detour costs time and memory. With Blender HTTP there's no menu to guess against — there's only the code.
-
-**Lots of little tasks turn into lots of little trips.** *"Add a cube, name it, colour it, move it, take a screenshot"* is five separate back-and-forths with MCP — five questions, five answers, every one of them costing a little extra. With Blender HTTP it's one back-and-forth: one short script that does all five things. The clock spends less time waiting, and the AI's memory fills up more slowly.
-
-**Screenshots fill up the AI's memory.** When MCP takes a screenshot, the picture comes back inside the answer and stays in the AI's memory from then on. One full-quality screenshot is about 1.3 MB. A six-angle review of a scene is closer to 8 MB — just for the pictures. Blender HTTP saves screenshots to a folder on your disk instead. The AI only sees an image if it asks to. If you just want a *"did my change work?"* peek, you can ask for a tiny thumbnail. If nothing has changed since last time, the answer can be a one-word "nothing changed" with no picture at all.
-
-**You can stop a long job partway through.** MCP runs every script to completion — there's no cancel button. If something is clearly going wrong five seconds into a thirty-second build, you wait out the other twenty-five seconds anyway. Blender HTTP gives you a stop request that interrupts the script cleanly at the next step. As a bonus, when a script is written as a series of named steps, Blender's window stays interactive between them — you can rotate the camera and watch the scene take shape instead of waiting for the final reveal.
+- **Easier to set up.** MCP needs a Blender add-on plus a Python package plus a JSON config edit in your AI tool plus a restart. Blender HTTP needs the Blender add-on and one click.
+- **No tool menu to learn.** MCP loads ~20 tool descriptions into the AI's memory every conversation, used or not. Blender HTTP doesn't.
+- **Fewer wrong guesses.** With MCP, the AI has to choose between a curated tool and writing code — and often tries the tool, sees it doesn't fit, then writes the code anyway. Blender HTTP skips the detour.
+- **Fewer round-trips.** *"Add a cube, name it, colour it, move it, take a screenshot"* is five back-and-forths in MCP. In Blender HTTP it's one short script.
+- **Screenshots don't fill up memory.** MCP returns images inline — a full screenshot is ~1.3 MB of context the AI carries forever. Blender HTTP saves them to disk; the AI only sees an image if it asks.
+- **You can cancel.** MCP runs every script to completion. Blender HTTP has a stop request that interrupts cleanly between steps.
 
 
 ## Install
