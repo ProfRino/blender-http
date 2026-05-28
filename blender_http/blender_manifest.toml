@@ -11,4 +11,4 @@ copyright = ["2026 Ruggiero Lovreglio"]
 tags = ["Development"]
 
 [permissions]
-network = "Hosts a local HTTP server (default 127.0.0.1:9876) to receive and execute Python scripts."
+network = "Hosts a local HTTP server (default 127.0.0.1:9877) to receive and execute Python scripts."

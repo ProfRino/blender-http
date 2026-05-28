@@ -3,7 +3,7 @@
 Each step adds a UV sphere along the X axis. Watch them appear one at a time.
 Cancel from the N-panel, or:
 
-    Invoke-WebRequest -Uri http://127.0.0.1:9876/jobs/<id> -Method DELETE
+    Invoke-WebRequest -Uri http://127.0.0.1:9877/jobs/<id> -Method DELETE
 """
 
 import bpy

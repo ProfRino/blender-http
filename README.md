@@ -79,7 +79,7 @@ ln -sf "$(pwd)/blender_http" ~/.config/blender/5.1/extensions/user_default/blend
 2. In the 3D Viewport, press `N` → click the `HTTP` tab → **Start**.
 3. Verify:
    ```bash
-   curl http://127.0.0.1:9876/health
+   curl http://127.0.0.1:9877/health
    # {"ok": true}
    ```
 
@@ -115,7 +115,7 @@ If you have an AI coding agent with shell access, you can hand it this prompt an
 >    - `Edit > Preferences > Add-ons`, search "Blender HTTP", tick the checkbox.
 >    - In the 3D Viewport press `N`, click the `HTTP` tab, click **Start**.
 >
-> 6. **Wait for me to confirm I've clicked Start.** Then verify by curling `http://127.0.0.1:9876/health` — expect `{"ok": true}`.
+> 6. **Wait for me to confirm I've clicked Start.** Then verify by curling `http://127.0.0.1:9877/health` — expect `{"ok": true}`.
 >
 > Don't proceed if you can't confirm my Blender version. Don't overwrite anything without asking. Keep output concise — I want progress, not a tutorial.
 
@@ -127,7 +127,7 @@ If you have an AI coding agent with shell access, you can hand it this prompt an
 Send a Python script with `curl`:
 
 ```bash
-curl -s localhost:9876 --data-binary "
+curl -s localhost:9877 --data-binary "
 import bpy
 bpy.ops.mesh.primitive_cube_add(location=(0, 0, 1))
 'cube made'

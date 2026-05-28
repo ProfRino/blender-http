@@ -429,7 +429,7 @@ class _Handler(BaseHTTPRequestHandler):
 
 # ---- module-level controls ---------------------------------------------------
 
-def start(host: str = "127.0.0.1", port: int = 9876) -> bool:
+def start(host: str = "127.0.0.1", port: int = 9877) -> bool:
     global _server, _thread
     if _server is not None:
         return False

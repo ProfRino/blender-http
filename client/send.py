@@ -3,7 +3,7 @@
 Usage:
     python send.py path\\to\\script.py
     python send.py path\\to\\script.py --stream
-    python send.py path\\to\\script.py --url http://127.0.0.1:9876
+    python send.py path\\to\\script.py --url http://127.0.0.1:9877
 """
 
 import argparse
@@ -16,7 +16,7 @@ from urllib.error import HTTPError
 def main():
     ap = argparse.ArgumentParser(description="Send a Python script to Blender HTTP.")
     ap.add_argument("script", help="Path to a .py file")
-    ap.add_argument("--url", default="http://127.0.0.1:9876")
+    ap.add_argument("--url", default="http://127.0.0.1:9877")
     ap.add_argument("--stream", action="store_true", help="Use async + SSE streaming")
     args = ap.parse_args()
 

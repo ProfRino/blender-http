@@ -11,7 +11,7 @@ def _workspace_changed(self, context):
 
 class BHTTP_Settings(bpy.types.PropertyGroup):
     host: bpy.props.StringProperty(name="Host", default="127.0.0.1")
-    port: bpy.props.IntProperty(name="Port", default=9876, min=1024, max=65535)
+    port: bpy.props.IntProperty(name="Port", default=9877, min=1024, max=65535)
     workspace_override: bpy.props.StringProperty(
         name="Workspace",
         description="Override the workspace path (clears on Blender restart). Leave empty to use env var or default.",

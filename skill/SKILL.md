@@ -1,6 +1,6 @@
 ---
 name: blender-http-skill
-description: Use this skill whenever an agent needs to drive Blender through the local Blender HTTP plugin (default 127.0.0.1:9876). Covers the HTTP API, the SSE event stream, the injected OUTPUT/WORKSPACE/snapshot/audit/progress helpers, the generator build() script pattern, and an assembly-and-audit workflow for connected 3D models (buildings, towers, furniture, machines, structures, pipes, railings, stairs, vehicles, modular objects) — with a screenshot audit checklist for catching common AI-Blender errors before final output. Do not use the legacy ptrthomas/blender-agent on 5656 or the mcp__blender__* tools while this skill is active.
+description: Use this skill whenever an agent needs to drive Blender through the local Blender HTTP plugin (default 127.0.0.1:9877). Covers the HTTP API, the SSE event stream, the injected OUTPUT/WORKSPACE/snapshot/audit/progress helpers, the generator build() script pattern, and an assembly-and-audit workflow for connected 3D models (buildings, towers, furniture, machines, structures, pipes, railings, stairs, vehicles, modular objects) — with a screenshot audit checklist for catching common AI-Blender errors before final output. Do not use the legacy ptrthomas/blender-agent on 5656 or the mcp__blender__* tools while this skill is active.
 ---
 
 # Blender HTTP Skill
@@ -15,7 +15,7 @@ The skill is broad: the core plugin contract applies to any Blender work. The **
 
 Use this skill when:
 
-- Driving Blender via HTTP on port 9876 — any modelling, materials, lighting, rendering, animation, video editing
+- Driving Blender via HTTP on port 9877 — any modelling, materials, lighting, rendering, animation, video editing
 - Generating connected assemblies or structures (buildings, towers, furniture, machines, pipes, railings, stairs, vehicles, modular objects)
 - Repairing AI-generated Blender geometry
 - Auditing a scene visually from multiple viewpoints
@@ -23,7 +23,7 @@ Use this skill when:
 
 Do **not** use this skill when:
 
-- Talking to a different Blender mechanism (the legacy `ptrthomas/blender-agent` on port 5656, or `mcp__blender__*` MCP tools). Only the HTTP plugin on **9876**.
+- Talking to a different Blender mechanism (the legacy `ptrthomas/blender-agent` on port 5656, or `mcp__blender__*` MCP tools). Only the HTTP plugin on **9877**.
 - Running scripts that need internet access from Blender
 - Deleting user files outside the `OUTPUT` workspace
 - Executing untrusted Python
@@ -32,7 +32,7 @@ Do **not** use this skill when:
 
 ## The plugin in one screen
 
-**Endpoint:** `http://127.0.0.1:9876`
+**Endpoint:** `http://127.0.0.1:9877`
 
 | Method | Path | Purpose |
 |---|---|---|
@@ -48,7 +48,7 @@ Do **not** use this skill when:
 **Send a script:**
 
 ```bash
-curl -s localhost:9876 --data-binary @script.py            # sync
+curl -s localhost:9877 --data-binary @script.py            # sync
 python ..\blender-http\client\send.py script.py --stream   # async + SSE
 ```
 
@@ -332,7 +332,7 @@ Scripts run via Blender HTTP must not:
 - Bind the server beyond `127.0.0.1`.
 - Execute untrusted user-supplied code.
 
-The plugin server binds to localhost only. Do **not** expose port 9876 to the network.
+The plugin server binds to localhost only. Do **not** expose port 9877 to the network.
 
 ---
 

@@ -1,6 +1,6 @@
 # Blender HTTP Protocol
 
-Default base URL: `http://127.0.0.1:9876`. All endpoints accept and return UTF-8.
+Default base URL: `http://127.0.0.1:9877`. All endpoints accept and return UTF-8.
 
 JSON responses honor `Accept-Encoding: gzip` and compress payloads >= 1 KB. Typical compression ratio 3–5×.
 
@@ -74,7 +74,7 @@ event: completed
 data: {"result": null}
 ```
 
-Consume with `curl -N http://127.0.0.1:9876/jobs/<id>/stream` or any SSE client.
+Consume with `curl -N http://127.0.0.1:9877/jobs/<id>/stream` or any SSE client.
 
 ### `DELETE /jobs/{id}`
 

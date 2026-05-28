@@ -12,14 +12,14 @@ That is the add-on's purpose. It is not a sandbox. Treat the server as if it wer
 |---|---|
 | Anyone with TCP access to the server's bound address and port | Execute Python in Blender, read/write files, exfiltrate data, modify the open scene |
 | Anyone who can send you a script to "just run" | Same as above, once you POST it |
-| Anyone on the local machine (other user accounts, malware) | Reach `127.0.0.1:9876` like any other localhost service |
+| Anyone on the local machine (other user accounts, malware) | Reach `127.0.0.1:9877` like any other localhost service |
 
 There is **no authentication, no script sandboxing, no allow-list, no rate limit**. Network isolation and your judgement are the only defences.
 
 ## Safe defaults (and how to keep them safe)
 
 - **The server binds to `127.0.0.1` by default.** This restricts access to processes on the same machine. Do **not** change the host to `0.0.0.0` or a LAN address unless you understand the consequences.
-- **The default port `9876` has no protection.** Anything on your machine that opens a TCP connection to it gets full code execution.
+- **The default port `9877` has no protection.** Anything on your machine that opens a TCP connection to it gets full code execution.
 - **`OUTPUT` is a convention, not a boundary.** Scripts can write anywhere the Blender process has permission. The `OUTPUT` path is just a sensible default — it's not enforced.
 
 ## Recommended practice

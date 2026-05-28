@@ -1,6 +1,6 @@
 # Blender HTTP Skill
 
-A Claude Code skill for driving Blender through the [Blender HTTP](..) plugin (port 9876). This folder lives inside the plugin's repo — same clone gets you both.
+A Claude Code skill for driving Blender through the [Blender HTTP](..) plugin (port 9877). This folder lives inside the plugin's repo — same clone gets you both.
 
 ## What this skill teaches
 
@@ -53,5 +53,5 @@ skill/
 
 ## Notes
 
-- This skill replaces the earlier `blender-http-assembly-skill` which targeted the legacy `ptrthomas/blender-agent` HTTP bridge on port 5656. The new plugin runs on **9876** and adds streaming, generator-based step execution, cancellation, snapshots, and multi-view audit.
+- This skill replaces the earlier `blender-http-assembly-skill` which targeted the legacy `ptrthomas/blender-agent` HTTP bridge on port 5656. The new plugin runs on **9877** and adds streaming, generator-based step execution, cancellation, snapshots, and multi-view audit.
 - The skill is broad on the plugin contract (covers any Blender automation) and detailed on assembly + audit (its main use case for architectural / connected-geometry work).

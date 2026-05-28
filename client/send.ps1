@@ -8,7 +8,7 @@
 #>
 param(
     [Parameter(Mandatory = $true)][string]$Script,
-    [string]$Url = "http://127.0.0.1:9876",
+    [string]$Url = "http://127.0.0.1:9877",
     [switch]$Stream
 )
 
