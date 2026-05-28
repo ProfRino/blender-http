@@ -31,6 +31,8 @@ The add-on only listens to your own computer. It can't be reached over the inter
 
 With the official Blender [MCP](https://modelcontextprotocol.io/) server, the AI controls Blender through a fixed menu of pre-built tools — like a remote control with specific buttons. With Blender HTTP, the AI just writes Python — like having the keyboard. The remote works for what it covers; the keyboard is faster, cheaper, and never runs out of buttons.
 
+**Easier to set up.** Using MCP means installing the Blender add-on, installing a Python package on your system, editing a JSON config file in your AI tool, and restarting it. Using Blender HTTP means installing the Blender add-on and clicking "Start". The AI needs no special configuration on its side — it just sends HTTP requests, which every AI agent already knows how to do.
+
 **MCP gives the AI a fixed menu of buttons.** Around 20 of them — for things like adding objects, applying materials, asking what's in the scene, downloading assets. The AI carries that whole menu in its memory from the start of every conversation, even if you never use any of those buttons. With Blender HTTP there's no menu — the AI just writes the same kind of code it already knows.
 
 **More buttons means more wrong guesses.** On every step the AI has to ask itself, *"is there a button for this, or should I just write the code?"* Sometimes a button looks right but doesn't quite do what's needed — so the AI tries it, sees it didn't work, then writes the code anyway. Each detour costs time and memory. With Blender HTTP there's no menu to guess against — there's only the code.
