@@ -215,6 +215,10 @@ Just write Python — these names are already in scope, no imports needed:
 
 The full list of endpoints, query parameters, and response shapes is in **[docs/protocol.md](docs/protocol.md)**.
 
+## Use with an AI agent
+
+The [`skill/`](skill/) folder is a Claude Code skill that teaches an AI agent how to drive this plugin — when to use streaming vs one-shot, how to write scripts as named steps, and the screenshot audit checklist for catching common AI-Blender mistakes (floating parts, wrong scale, missing materials, ...). Most agents auto-load it when the folder is in scope. See [`skill/SKILL.md`](skill/SKILL.md) for the full content.
+
 ## License
 
 MIT. Copyright 2026 Ruggiero Lovreglio. See [LICENSE](LICENSE).
