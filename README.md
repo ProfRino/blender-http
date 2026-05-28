@@ -40,11 +40,6 @@ With the official Blender [MCP](https://modelcontextprotocol.io/) server, the AI
 
 **Long jobs are easier to live with.** Blender can only do one thing at a time, so neither option feels different on short tasks. The difference shows up on long ones. With MCP, once a script is running, you wait — Blender's window is locked until it finishes, even if it goes on for 30 seconds, and there's no way to stop it midway. With Blender HTTP, if the instructions are broken into named steps, Blender's window stays alive between them — you can rotate the camera, watch the model take shape, and send a stop request the moment something looks off.
 
-### Smaller benefits worth knowing
-
-- Responses compress with gzip if you ask — usually 3–5× smaller.
-- No SDK or runtime to install on the client side. `curl` works. Any language with an HTTP client works.
-- The plain `POST /` with the script as the raw body still does what you'd expect, so existing scripts written for [ptrthomas/blender-agent](https://github.com/ptrthomas/blender-agent) keep running.
 
 ## Install
 
