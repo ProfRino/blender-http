@@ -2,29 +2,47 @@
 
 **Drive Blender from anywhere on your computer via HTTP.**
 
-This add-on runs a tiny HTTP server inside Blender that accepts Python scripts, executes them on Blender's main thread, and streams the result back over the same connection. Any external process — an AI coding agent, a CLI tool, a Python script, a web page — can build scenes, run renders, save `.blend` files, and inspect scene state by sending Python over a local socket.
+## How it works
 
-It's a thin, fast alternative to the [Model Context Protocol](https://modelcontextprotocol.io/) Blender server: fewer round-trips for chatty agent workflows, no base64 image payloads inflating the agent's context, a generator-based execution model that **keeps the viewport responsive while scripts run**, and live progress events instead of one big result blob at the end.
+The add-on starts a tiny HTTP server inside Blender (default `127.0.0.1:9876`). External processes — an AI coding agent, a CLI tool, a Python script, a web page — drive Blender by POSTing Python source to the server. The server runs that code on Blender's main thread, captures stdout and the value of the last expression, and returns the result.
+
+```
+                       POST /  (Python source as the body)
+   external client  ────────────────────────────────────▶  Blender HTTP server
+       (curl, Python urllib,                                      │
+        Claude Code agent,                                        │ run on Blender's
+        web page, ...)                                            │ main thread via
+                                                                  │ bpy.app.timers
+                       ◀────────────────────────────────  {ok, output, result}
+                            JSON response
+```
+
+There are two execution modes:
+
+- **Sync** (`POST /`) — runs the script, blocks until done, returns one JSON blob with the captured stdout and the value of the last expression. Compatible with simple `curl` one-liners.
+- **Async + streaming** (`POST /jobs` → `GET /jobs/{id}/stream`) — returns a `job_id` immediately and streams events back over **Server-Sent Events**: every `print()` line, every `yield` from a `build()` generator, every `snapshot()` taken, every `progress()` update. Cancellable via `DELETE /jobs/{id}`.
+
+Scripts that define a `build()` function returning a generator are run **one yield per timer tick**, which means Blender's event loop runs between steps — the viewport redraws, the UI stays responsive, and you can orbit the camera while the script executes. Objects appear progressively rather than all at once at the end.
+
+Scripts get a small set of helpers injected into their namespace (`snapshot`, `audit`, `inspect`, `find`, `bbox`, `progress`, `OUTPUT`, `WORKSPACE`) so common operations don't need a Python boilerplate header.
 
 Default port: **9876**. Default bind: `127.0.0.1` only.
 
-Inspired by [ptrthomas/blender-agent](https://github.com/ptrthomas/blender-agent) — rewritten from scratch to add Server-Sent Events streaming, a job queue, generator-based step execution, snapshots, multi-view audit, scene introspection, batch + REPL endpoints, gzip compression, and a cancel API.
+## Why this exists — vs the official Blender MCP server
 
-## Why this exists
+Blender has an official [Model Context Protocol](https://modelcontextprotocol.io/) server. It works, but for typical agent workflows it has structural overhead this add-on is designed to remove.
 
-The "send a Python script over HTTP, get one big JSON response back" pattern works, but has three flaws:
+| Pain point with MCP | What Blender HTTP does instead |
+|---|---|
+| Each operation is a separate tool call with the protocol's request + tool_result envelope. A chatty 6-step build = 6 envelopes × overhead. | `POST /batch` runs N scripts in one round-trip. The script namespace already has `snapshot`, `audit`, `inspect`, etc., so one script does the work of several MCP tool calls. |
+| Screenshots return as **base64 PNG inline in the tool_result** — a single full-res image eats ~1.3 MB of the agent's context window. A 6-view audit = ~8 MB just for the images. | `/snapshot` returns PNG bytes (or writes to disk with `?save=`). Zero context cost unless the agent explicitly reads the file. `?size=256` returns a ~25 KB preview. `?if-changed=<hash>` returns `304 Not Modified` for cheap polling. |
+| `execute_blender_code` runs synchronously: the viewport freezes for the script's full duration, `print()` output only arrives at the end, no cancellation. | Generator-based execution yields control between steps — UI stays responsive, objects appear progressively, every `print` / yield / progress event streams over SSE the moment it happens, and `DELETE /jobs/{id}` aborts cleanly at the next yield. |
+| No built-in scene introspection over the wire — you have to write `bpy` code, send it, parse the result. | `GET /inspect`, `POST /find`, `GET /bbox`, `GET /scene-hash` return compact JSON the agent can quote directly. |
+| No built-in multi-view audit — you write camera placement + render loop in every script. | `POST /audit` (or `audit()` inside a script) renders the canonical 6-view suite with bbox-aware camera placement in one call. |
+| No response compression — JSON payloads ship uncompressed. | `Accept-Encoding: gzip` compresses responses ~3–5×. |
+| MCP requires the MCP SDK / runtime on the client side. | Pure HTTP. `curl` works. Any language with an HTTP client works. No SDK to install. |
 
-1. **Blender freezes** while a big script runs (single main thread).
-2. **No visibility** — `print()` output only arrives after the script ends.
-3. **No cancel** — a runaway 5-minute job holds the whole UI hostage.
-
-Blender HTTP fixes all three by:
-
-- Running scripts as **generators** that `yield` between steps. Between yields, Blender's event loop runs — viewport redraws, UI stays responsive, objects appear progressively.
-- Streaming events back via **Server-Sent Events** (SSE) — every `print()` line, every step label, every progress update arrives live.
-- Exposing a **job API** with `DELETE /jobs/{id}` to cancel cooperatively.
-
-It also keeps a **synchronous compat endpoint** so existing one-liner `curl` workflows still work.
+It also keeps a **synchronous compat endpoint** (`POST /` with the script as the raw body) so existing one-liner `curl` workflows from the legacy [ptrthomas/blender-agent](https://github.com/ptrthomas/blender-agent) still work.
 
 ## Install
 
