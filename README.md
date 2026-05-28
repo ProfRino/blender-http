@@ -28,7 +28,7 @@ The server only listens on your own machine (`127.0.0.1`, default port `9876`). 
 
 ## Why this exists — vs the official Blender MCP server
 
-Blender has an official server based on the [Model Context Protocol](https://modelcontextprotocol.io/) (MCP). It can run arbitrary Python via an `execute_blender_code` tool — same as Blender HTTP. The difference is everything **around** that tool.
+Blender has an official server based on the [Model Context Protocol](https://modelcontextprotocol.io/) (MCP). Both servers can ultimately run Python in Blender — but how they let the AI write that Python, what the script has access to, how the result comes back, and how much context it costs are very different. The official MCP server's `execute_blender_code` is a synchronous fire-and-forget call: you POST a string, wait, get one JSON blob at the end. Blender HTTP treats Python execution as a first-class workflow — streaming output, injected helpers, generator-based steps, mid-flight cancel.
 
 **MCP makes the AI learn a vocabulary of tools.** The official MCP server bundles ~20 curated tools (object creation, materials, scene inspection, Poly Haven asset download, Hyper3D model generation, …). Every one of their schemas is loaded into the AI's context window from turn 1, whether you'll use them or not — tokens you pay before you've written a single prompt. Blender HTTP exposes one HTTP endpoint and lets the AI write the Python it already knows.
 
