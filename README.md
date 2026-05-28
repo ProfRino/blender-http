@@ -6,9 +6,24 @@
 
 The add-on starts a small web server inside Blender. In a typical setup, the chain looks like this:
 
-```
-  you  ──prompt──▶  AI agent  ──HTTP request──▶  HTTP server  ──runs script──▶  Blender
-                        ◀──────── result + printed output ◀────────────────────────┘
+```mermaid
+flowchart LR
+    you([You])
+    ai([AI agent<br/><sub>Claude Code, Codex, …</sub>])
+    srv([HTTP server<br/><sub>inside Blender</sub>])
+    bl([Blender scene])
+
+    you  -->|plain English prompt| ai
+    ai   -->|Python script| srv
+    srv  -->|runs the script| bl
+    bl  -.->|result + printed output| srv
+    srv -.->|HTTP response| ai
+    ai  -.->|shows the result| you
+
+    style you fill:#e8f4ff,stroke:#4a90e2,stroke-width:2px
+    style ai  fill:#fff4e6,stroke:#e89c4a,stroke-width:2px
+    style srv fill:#eaf7ea,stroke:#52a352,stroke-width:2px
+    style bl  fill:#f4e8ff,stroke:#9a4ae2,stroke-width:2px
 ```
 
 You tell the AI what you want in plain English. The AI (Claude Code, Codex, …) writes the Blender instructions for you and sends them to the add-on inside Blender. The add-on runs them, then hands back whatever happened — results, error messages, anything the script reported — for the AI to show you.
@@ -126,11 +141,9 @@ If you have an AI coding agent with shell access, you can hand it this prompt an
 ---
 
 
-## Try it
+## What it looks like
 
-A handful of examples. Each one is the complete code.
-
-### Make a cube
+Send a Python script with `curl`:
 
 ```bash
 curl -s localhost:9876 --data-binary "
@@ -140,68 +153,9 @@ bpy.ops.mesh.primitive_cube_add(location=(0, 0, 1))
 "
 ```
 
-Returns `{"ok": true, "output": "", "result": "cube made"}`.
+Blender runs it; you get back `{"ok": true, "output": "", "result": "cube made"}`.
 
-### Watch a model build itself
-
-Save as `pavilion.py`:
-
-```python
-import bpy
-
-def build():
-    yield "base"
-    bpy.ops.mesh.primitive_plane_add(size=6)
-    for i in range(4):
-        yield f"column {i+1}/4"
-        bpy.ops.mesh.primitive_cube_add(size=0.4, location=(i, 0, 1))
-    yield "roof"
-    bpy.ops.mesh.primitive_plane_add(size=6, location=(0, 0, 2))
-```
-
-Then:
-
-```bash
-python client/send.py pavilion.py --stream
-```
-
-Step events arrive live as Blender works through it, and the objects appear in the viewport one by one rather than all at the end.
-
-### Render a multi-angle audit of the current scene
-
-Inside any script — one line:
-
-```python
-audit(f"{OUTPUT}/audits/pass1")
-```
-
-That auto-places six cameras (front, back, left, right, top, isometric) with bbox-aware framing, renders them all into `~/blender_http/output/audits/pass1/`, and cleans up after itself.
-
-### Ask what's in the scene
-
-```bash
-curl localhost:9876/inspect
-```
-
-Returns a compact JSON summary — every object's name, type, and location, plus materials, active camera, and collections.
-
-### Take a screenshot
-
-```bash
-# Full resolution PNG
-curl "localhost:9876/snapshot?mode=opengl" -o now.png
-
-# Tiny ~25 KB preview — useful for "did my change work?" checks
-curl "localhost:9876/snapshot?mode=opengl&size=256" -o preview.png
-```
-
-### Stop a runaway script
-
-```bash
-curl -X DELETE localhost:9876/jobs/<job_id>
-```
-
-It stops at the next `yield`. No need to restart Blender.
+More examples — a script that builds a model step by step, a one-line multi-angle audit, a cancellation demo — live in [`examples/`](examples/).
 
 ## What scripts get for free
 
