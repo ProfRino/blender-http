@@ -1,0 +1,14 @@
+schema_version = "1.0.0"
+id = "blender_http"
+version = "0.1.0"
+name = "Blender HTTP"
+tagline = "Live HTTP bridge with streaming and cancellable jobs"
+maintainer = "Ruggiero Lovreglio <lovreglio.ruggiero@gmail.com>"
+type = "add-on"
+blender_version_min = "5.0.0"
+license = ["SPDX:MIT"]
+copyright = ["2026 Ruggiero Lovreglio"]
+tags = ["Development"]
+
+[permissions]
+network = "Hosts a local HTTP server (default 127.0.0.1:9876) to receive and execute Python scripts."
