@@ -11,20 +11,20 @@ The add-on starts a small web server inside Blender. In a typical setup, the cha
                         ◀──────── result + printed output ◀────────────────────────┘
 ```
 
-You describe what you want in plain English. The AI agent (Claude Code, Codex, …) turns that into a Python script and POSTs it to the server. The server runs the script on Blender's main thread, captures anything it prints and the value of the last expression, and hands the result back to the agent — which shows it to you.
+You tell the AI what you want in plain English. The AI (Claude Code, Codex, …) writes the Blender instructions for you and sends them to the add-on inside Blender. The add-on runs them, then hands back whatever happened — results, error messages, anything the script reported — for the AI to show you.
 
-You can also talk to the server **directly** without an agent in the loop — `curl`, Python's `urllib`, a web page, or any other HTTP client. The AI layer is the most common path, not the only one.
+You don't have to go through an AI. Anything on your computer that can send instructions can talk to the add-on directly — a small script, a web page, a one-line command in a terminal. The AI is just the easiest way in.
 
-There are two ways the script can be run:
+The add-on runs your instructions in one of two styles:
 
-- **One-shot.** Send a script, wait, get one tidy JSON answer with anything the script printed and the value of its last line. As simple as `curl`. Best for short tasks.
-- **Live.** Send the script and watch a feed come back as Blender works — every line it prints, every named step it reaches, every screenshot it takes, in real time. Best for long builds, because you can see what's happening and stop mid-way if it looks wrong.
+- **All at once.** Send the instructions, wait, get the result back when they finish. Simple and quick — best for small tasks.
+- **Step by step, live.** Send the instructions and watch them play out — every status message, every step the script announces, every screenshot it saves — arriving as it happens. Best for bigger tasks, because you can see how it's going and stop it if something looks wrong.
 
-There's one trick worth knowing. If your script wraps its work in a `build()` function with `yield` between steps, Blender runs **one step, lets the UI breathe, runs the next step, lets the UI breathe**, and so on. The viewport keeps redrawing, you can rotate the camera while it builds, and objects appear in the scene one by one instead of all popping in at the end. It's the difference between "Blender is frozen, please wait 30 seconds" and watching the model assemble itself in front of you.
+There's one nice trick. If the instructions are written as a series of named steps, Blender does step one, pauses long enough for the viewport to update, does step two, pauses again, and so on. You can rotate the camera while it builds, watch objects appear one at a time, and cancel halfway through if you change your mind. It's the difference between Blender freezing for thirty seconds and watching the scene assemble itself.
 
-Every script gets a small set of helpers handed to it automatically — for taking screenshots, rendering a multi-angle audit of the scene, asking what's in the scene, and writing to a shared output folder. No imports needed; they're just available.
+A few useful shortcuts are always available inside the instructions — for taking pictures of the scene, rendering it from six angles for review, asking what's currently in the scene, and saving files to a shared output folder. They're just there; no setup needed.
 
-The server only listens on your own machine (`127.0.0.1`, default port `9876`). It's not on the network. See [SECURITY.md](SECURITY.md) before changing that.
+The add-on only listens to your own computer. It can't be reached over the internet or by anyone else on your network. (If you want to expose it deliberately, read [SECURITY.md](SECURITY.md) first.)
 
 ## Why this exists — vs the official Blender MCP server
 
