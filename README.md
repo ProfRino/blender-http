@@ -38,7 +38,7 @@ With the official Blender [MCP](https://modelcontextprotocol.io/) server, the AI
 
 **Screenshots fill up the AI's memory.** When MCP takes a screenshot, the picture comes back inside the answer and stays in the AI's memory from then on. One full-quality screenshot is about 1.3 MB. A six-angle review of a scene is closer to 8 MB — just for the pictures. Blender HTTP saves screenshots to a folder on your disk instead. The AI only sees an image if it asks to. If you just want a *"did my change work?"* peek, you can ask for a tiny thumbnail. If nothing has changed since last time, the answer can be a one-word "nothing changed" with no picture at all.
 
-**Long jobs are easier to live with.** Blender can only do one thing at a time, so neither option feels different on short tasks. The difference shows up on long ones. With MCP, once a script is running, you wait — Blender's window is locked until it finishes, even if it goes on for 30 seconds, and there's no way to stop it midway. With Blender HTTP, if the instructions are broken into named steps, Blender's window stays alive between them — you can rotate the camera, watch the model take shape, and send a stop request the moment something looks off.
+**You can stop a long job partway through.** MCP runs every script to completion — there's no cancel button. If something is clearly going wrong five seconds into a thirty-second build, you wait out the other twenty-five seconds anyway. Blender HTTP gives you a stop request that interrupts the script cleanly at the next step. As a bonus, when a script is written as a series of named steps, Blender's window stays interactive between them — you can rotate the camera and watch the scene take shape instead of waiting for the final reveal.
 
 
 ## Install
