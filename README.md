@@ -126,41 +126,25 @@ If you have an AI coding agent with shell access, you can hand it this prompt an
 ---
 
 
-## API
+## Try it
 
-| Method | Path | Purpose |
-|---|---|---|
-| `POST` | `/` | Sync exec. Returns `{ok, output, result, error}` when script ends. Compatible with blender-agent. |
-| `POST` | `/jobs` | Async submit. Returns `{job_id, status}` immediately. |
-| `GET` | `/jobs/{id}` | Job status JSON. |
-| `GET` | `/jobs/{id}/stream` | SSE stream of events (`started`, `step`, `stdout`, `progress`, `snapshot`, `audit`, `completed`, `failed`, `cancelled`). |
-| `DELETE` | `/jobs/{id}` | Cancel running job. |
-| `POST` | `/batch` | Run multiple scripts in one request. Returns per-script results. |
-| `POST` | `/repl?session=<id>` | Run a script with a persistent namespace for the session. |
-| `GET` | `/sessions` | List active REPL sessions. |
-| `GET` | `/snapshot` | Capture one image (`?mode=&size=&save=&if-changed=`). PNG bytes or JSON with `save`. `size` for tiny previews; `if-changed` for cheap polling. |
-| `POST` | `/audit` | Render the 6-view audit suite (front/back/left/right/top/iso), returns `{dir, views}`. |
-| `GET` | `/inspect?detail=brief|full` | Compact scene summary. |
-| `POST` | `/find` | Find objects by name pattern. Body: `{pattern, types?}`. |
-| `GET` | `/bbox?name=<pattern>` | World bounding box of named object(s) or whole scene. |
-| `GET` | `/scene-hash` | 16-char hex hash of current scene state. |
-| `GET` | `/health` | Liveness check. |
+A handful of examples. Each one is the complete code.
 
-All JSON responses honor `Accept-Encoding: gzip` (~3-5× smaller).
+### Make a cube
 
-See [docs/protocol.md](docs/protocol.md) for full details.
-
-## Writing scripts
-
-### Sync (one-shot) — same as blender-agent
-
-```python
+```bash
+curl -s localhost:9876 --data-binary "
 import bpy
 bpy.ops.mesh.primitive_cube_add(location=(0, 0, 1))
-"cube made"   # last expression -> result
+'cube made'
+"
 ```
 
-### Generator (streaming + progressive) — new
+Returns `{"ok": true, "output": "", "result": "cube made"}`.
+
+### Watch a model build itself
+
+Save as `pavilion.py`:
 
 ```python
 import bpy
@@ -175,33 +159,61 @@ def build():
     bpy.ops.mesh.primitive_plane_add(size=6, location=(0, 0, 2))
 ```
 
-If `build` is defined and returns a generator, the server runs one yield per timer tick. Each yield emits a `step` event over SSE. Between ticks Blender redraws, so the viewport shows objects appearing live.
+Then:
 
-If `build` is not defined, the script runs in one shot (sync compatibility).
-
-Helpers and constants injected into every script's namespace:
-
-- `progress(current, total=None, label=None)` — explicit progress events.
-- `snapshot(path, mode="viewport", size=None, thumb=False)` — save one image. `size` downscales (opengl/render), `thumb=True` also embeds a 128 px base64 preview in the SSE event.
-- `audit(output_dir, mode="opengl", margin=1.4, lens=35)` — render the canonical 6-view audit suite (front, back, left, right, top, isometric) with bbox-aware camera framing. Returns `{view_name: path}`.
-- `inspect(detail="brief")` — scene summary dict.
-- `find(pattern, types=None)` — fnmatch-glob object search.
-- `bbox(name_or_pattern=None)` — world bounding box.
-- `scene_hash()` — 16-char hex hash of the scene state.
-- `OUTPUT` — string path to `<workspace>/output/`, auto-created. Use as `f"{OUTPUT}/snapshots/before.png"`.
-- `WORKSPACE` — string path to the workspace root.
-
-Workspace defaults to `~/blender_http/`. Override via N-panel ("Workspace" field, session-only) or env var `BLENDER_HTTP_WORKSPACE` at Blender launch.
-
-## Quick test
-
-```powershell
-# Sync (curl-like)
-python client\send.py examples\01_simple_cube.py
-
-# Streaming (watch events arrive live)
-python client\send.py examples\02_generator_pavilion.py --stream
+```bash
+python client/send.py pavilion.py --stream
 ```
+
+Step events arrive live as Blender works through it, and the objects appear in the viewport one by one rather than all at the end.
+
+### Render a multi-angle audit of the current scene
+
+Inside any script — one line:
+
+```python
+audit(f"{OUTPUT}/audits/pass1")
+```
+
+That auto-places six cameras (front, back, left, right, top, isometric) with bbox-aware framing, renders them all into `~/blender_http/output/audits/pass1/`, and cleans up after itself.
+
+### Ask what's in the scene
+
+```bash
+curl localhost:9876/inspect
+```
+
+Returns a compact JSON summary — every object's name, type, and location, plus materials, active camera, and collections.
+
+### Take a screenshot
+
+```bash
+# Full resolution PNG
+curl "localhost:9876/snapshot?mode=opengl" -o now.png
+
+# Tiny ~25 KB preview — useful for "did my change work?" checks
+curl "localhost:9876/snapshot?mode=opengl&size=256" -o preview.png
+```
+
+### Stop a runaway script
+
+```bash
+curl -X DELETE localhost:9876/jobs/<job_id>
+```
+
+It stops at the next `yield`. No need to restart Blender.
+
+## What scripts get for free
+
+Just write Python — these names are already in scope, no imports needed:
+
+- `bpy` — Blender's Python API
+- `OUTPUT` — write your snapshots, renders, and `.blend` files here (defaults to `~/blender_http/output/`)
+- `snapshot(path)`, `audit(dir)` — save images, run the audit suite
+- `inspect()`, `find(pattern)`, `bbox()`, `scene_hash()` — query the scene
+- `progress(current, total, label)` — emit a progress event into the live feed
+
+The full list of endpoints, query parameters, and response shapes is in **[docs/protocol.md](docs/protocol.md)**.
 
 ## License
 
