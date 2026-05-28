@@ -4,15 +4,18 @@
 
 ## How it works
 
-The add-on starts a small web server inside Blender. Anything that can make an HTTP request — an AI agent, a one-line `curl` command, a Python script, a web page open on your laptop — can now talk to Blender directly.
-
-You send a chunk of Python code. Blender runs it. You get the result back.
+The add-on starts a small web server inside Blender. In a typical setup, the chain looks like this:
 
 ```
-   you  ──── send a script ────▶  Blender  ──── result + anything it printed ────▶  you
+  you  ──prompt──▶  AI agent  ──HTTP request──▶  HTTP server  ──runs script──▶  Blender
+                        ◀──────── result + printed output ◀────────────────────────┘
 ```
 
-You can talk to it in two ways:
+You describe what you want in plain English. The AI agent (Claude Code, Codex, …) turns that into a Python script and POSTs it to the server. The server runs the script on Blender's main thread, captures anything it prints and the value of the last expression, and hands the result back to the agent — which shows it to you.
+
+You can also talk to the server **directly** without an agent in the loop — `curl`, Python's `urllib`, a web page, or any other HTTP client. The AI layer is the most common path, not the only one.
+
+There are two ways the script can be run:
 
 - **One-shot.** Send a script, wait, get one tidy JSON answer with anything the script printed and the value of its last line. As simple as `curl`. Best for short tasks.
 - **Live.** Send the script and watch a feed come back as Blender works — every line it prints, every named step it reaches, every screenshot it takes, in real time. Best for long builds, because you can see what's happening and stop mid-way if it looks wrong.
