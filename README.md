@@ -25,19 +25,21 @@ The server only listens on your own machine (`127.0.0.1`, default port `9876`). 
 
 ## Why this exists — vs the official Blender MCP server
 
-Blender has an official [Model Context Protocol](https://modelcontextprotocol.io/) server. It works, but for typical agent workflows it has structural overhead this add-on is designed to remove.
+Blender has an official server based on the [Model Context Protocol](https://modelcontextprotocol.io/) (MCP). It works. But for the kind of back-and-forth an AI agent does — *"add this, screenshot it, fix that, screenshot again"* — MCP has friction that adds up. This add-on takes the same idea and strips that friction out.
 
-| Pain point with MCP | What Blender HTTP does instead |
-|---|---|
-| Each operation is a separate tool call with the protocol's request + tool_result envelope. A chatty 6-step build = 6 envelopes × overhead. | `POST /batch` runs N scripts in one round-trip. The script namespace already has `snapshot`, `audit`, `inspect`, etc., so one script does the work of several MCP tool calls. |
-| Screenshots return as **base64 PNG inline in the tool_result** — a single full-res image eats ~1.3 MB of the agent's context window. A 6-view audit = ~8 MB just for the images. | `/snapshot` returns PNG bytes (or writes to disk with `?save=`). Zero context cost unless the agent explicitly reads the file. `?size=256` returns a ~25 KB preview. `?if-changed=<hash>` returns `304 Not Modified` for cheap polling. |
-| `execute_blender_code` runs synchronously: the viewport freezes for the script's full duration, `print()` output only arrives at the end, no cancellation. | Generator-based execution yields control between steps — UI stays responsive, objects appear progressively, every `print` / yield / progress event streams over SSE the moment it happens, and `DELETE /jobs/{id}` aborts cleanly at the next yield. |
-| No built-in scene introspection over the wire — you have to write `bpy` code, send it, parse the result. | `GET /inspect`, `POST /find`, `GET /bbox`, `GET /scene-hash` return compact JSON the agent can quote directly. |
-| No built-in multi-view audit — you write camera placement + render loop in every script. | `POST /audit` (or `audit()` inside a script) renders the canonical 6-view suite with bbox-aware camera placement in one call. |
-| No response compression — JSON payloads ship uncompressed. | `Accept-Encoding: gzip` compresses responses ~3–5×. |
-| MCP requires the MCP SDK / runtime on the client side. | Pure HTTP. `curl` works. Any language with an HTTP client works. No SDK to install. |
+**Screenshots eat your context.** MCP returns images as base64 text mixed into the response. A single full-screen screenshot is about **1.3 MB** of context the agent has to carry. A 6-view audit? Around **8 MB just for the pictures**. With Blender HTTP, screenshots go to disk; the agent only sees them if it asks. Want a tiny preview to check progress? `?size=256` gives you a ~25 KB PNG. Want to check whether anything actually changed before re-rendering? `?if-changed=<hash>` returns "nope" with no payload at all.
 
-It also keeps a **synchronous compat endpoint** (`POST /` with the script as the raw body) so existing one-liner `curl` workflows from the legacy [ptrthomas/blender-agent](https://github.com/ptrthomas/blender-agent) still work.
+**Every action is a separate round-trip.** With MCP, *"add a cube, name it, make it red, move it, take a screenshot"* is five separate request-and-response exchanges, each with its own protocol envelope. Blender HTTP lets you batch them into one round-trip — or just send one bigger script and skip the overhead entirely.
+
+**The viewport freezes while a script runs.** MCP runs your Python synchronously: while it works, Blender's UI is locked, you can't see progress, you can't cancel. With Blender HTTP, if your script wraps its work in a generator that `yield`s between steps, the UI keeps redrawing — objects appear one by one, you can orbit the camera, and you can abort a runaway script mid-flight.
+
+**You write everything from scratch.** MCP gives you "run this Python in Blender" and stops there. Want to know what's in the scene? Write a script that returns it. Want a 6-view audit of your model? Write the camera placement code in every project. Blender HTTP comes with that work pre-done: ask `/inspect` for a scene summary, `POST /audit` to render the audit suite, `/find` to search by name, `/bbox` for bounding boxes. All one HTTP call, all already debugged.
+
+### Smaller benefits worth knowing
+
+- Responses compress with gzip if you ask — usually 3–5× smaller.
+- No SDK to install on the client side. `curl` works. Any language with an HTTP client works.
+- The legacy one-liner `POST /` with the script as the raw body still does what you'd expect, so existing scripts written for [ptrthomas/blender-agent](https://github.com/ptrthomas/blender-agent) keep running.
 
 ## Install
 
