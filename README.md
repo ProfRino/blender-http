@@ -31,14 +31,16 @@ The add-on only listens on your own computer (`127.0.0.1`). See [SECURITY.md](SE
 
 ## Why this exists — vs the official Blender MCP server
 
-With the official Blender [MCP](https://modelcontextprotocol.io/) server, the AI controls Blender through a fixed menu of pre-built tools — like a remote with specific buttons. With Blender HTTP, the AI just writes Python — like having the keyboard.
+The official Blender [MCP](https://modelcontextprotocol.io/) server exposes a set of pre-built tools the AI calls through the MCP protocol. With Blender HTTP, the AI sends Python directly over a local HTTP endpoint. Different design choices with different trade-offs:
 
-- **Easier to set up.** MCP needs a Blender add-on plus a Python package plus a JSON config edit in your AI tool plus a restart. Blender HTTP needs the Blender add-on and one click.
-- **No tool menu to learn.** MCP loads ~20 tool descriptions into the AI's memory every conversation, used or not. Blender HTTP doesn't.
-- **Fewer wrong guesses.** With MCP, the AI has to choose between a curated tool and writing code — and often tries the tool, sees it doesn't fit, then writes the code anyway. Blender HTTP skips the detour.
-- **Fewer round-trips.** *"Add a cube, name it, colour it, move it, take a screenshot"* is five back-and-forths in MCP. In Blender HTTP it's one short script.
-- **Screenshots don't fill up memory.** MCP returns images inline — a full screenshot is ~1.3 MB of context the AI carries forever. Blender HTTP saves them to disk; the AI only sees an image if it asks.
-- **You can cancel.** MCP runs every script to completion. Blender HTTP has a stop request that interrupts cleanly between steps.
+- **Easier to set up.** A typical MCP setup needs a Blender add-on plus a Python package plus a JSON config edit in your AI tool plus a restart. Blender HTTP needs the Blender add-on and one click.
+- **No tool menu to memorise.** Many granular MCP servers load 15-20 tool descriptions into the AI's memory every conversation, used or not. Blender HTTP exposes one main entry point.
+- **Fewer tool/code decisions.** When MCP exposes a curated tool surface, the AI sometimes tries a tool, sees it doesn't fit, then writes Python anyway. With Blender HTTP there's only the code.
+- **Can reduce round-trips.** When the MCP setup offers granular per-action tools, *"add a cube, name it, colour it, move it, take a screenshot"* can become five back-and-forths. In Blender HTTP it's one short script.
+- **Screenshots don't have to fill up memory.** Many MCP screenshot tools return images as base64 inline in the response — a full screenshot is ~1.3 MB of context the AI carries. Blender HTTP saves them to disk by default; the AI only sees an image if it asks.
+- **Cooperative cancellation.** The official Blender MCP's `execute_blender_code` runs every script to completion. Blender HTTP supports a stop request that interrupts cleanly at the next `yield` in a generator-based script.
+
+> These trade-offs depend on the MCP server implementation, the AI client, and the task. They land hardest for **script-heavy** workflows (procedural modelling, multi-step scene edits, audits). For workflows that fit cleanly into structured tool calls, MCP may suit you better.
 
 
 ## Install
