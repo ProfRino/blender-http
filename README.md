@@ -31,7 +31,7 @@ The add-on lives under Blender's `extensions/user_default/blender_http` folder. 
 ### Windows
 
 ```powershell
-git clone https://github.com/<you>/blender-http
+git clone https://github.com/ProfRino/blender-http
 cd blender-http
 .\install.ps1                          # or: .\install.ps1 -BlenderVersion 5.2
 ```
@@ -41,7 +41,7 @@ Installs to `%APPDATA%\Blender Foundation\Blender\5.1\extensions\user_default\bl
 ### macOS
 
 ```bash
-git clone https://github.com/<you>/blender-http
+git clone https://github.com/ProfRino/blender-http
 cd blender-http
 mkdir -p ~/Library/Application\ Support/Blender/5.1/extensions/user_default
 ln -sf "$(pwd)/blender_http" ~/Library/Application\ Support/Blender/5.1/extensions/user_default/blender_http
@@ -52,7 +52,7 @@ ln -sf "$(pwd)/blender_http" ~/Library/Application\ Support/Blender/5.1/extensio
 ### Linux
 
 ```bash
-git clone https://github.com/<you>/blender-http
+git clone https://github.com/ProfRino/blender-http
 cd blender-http
 mkdir -p ~/.config/blender/5.1/extensions/user_default
 ln -sf "$(pwd)/blender_http" ~/.config/blender/5.1/extensions/user_default/blender_http
@@ -76,7 +76,7 @@ If you have an AI coding agent with shell access, you can hand it this prompt an
 
 > I want to install the Blender HTTP plugin into my existing Blender installation.
 >
-> The repository is `https://github.com/<USER>/blender-http` (a Blender 5.0+ extension that runs Python over HTTP for live agent control).
+> The repository is `https://github.com/ProfRino/blender-http` (a Blender 5.0+ extension that runs Python over HTTP for live agent control).
 >
 > Please do the following, **briefly explaining each step before you run it** and **asking before any destructive action**:
 >
@@ -106,7 +106,6 @@ If you have an AI coding agent with shell access, you can hand it this prompt an
 
 ---
 
-Replace `<USER>` with the actual GitHub user/org once this repo is published.
 
 ## API
 
