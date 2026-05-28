@@ -42,6 +42,44 @@ The official Blender [MCP](https://modelcontextprotocol.io/) server exposes a se
 
 > These trade-offs depend on the MCP server implementation, the AI client, and the task. They land hardest for **script-heavy** workflows (procedural modelling, multi-step scene edits, audits). For workflows that fit cleanly into structured tool calls, MCP may suit you better.
 
+## Preliminary benchmarks (2 case studies)
+
+Two small head-to-head builds where the same AI agent (general-purpose Claude Code sub-agent, fresh isolated context) built the same scene through each transport. The HTTP side had access to the bundled [`skill/SKILL.md`](skill/SKILL.md); the MCP side ran with just the MCP tool schemas — what a typical out-of-the-box install gives the agent.
+
+### Case Study 1 — Office desk setup
+
+Build a desk + chair + monitor + keyboard + mouse + potted cactus, save the `.blend`, render a 6-view audit.
+
+| | **Blender HTTP + bundled skill** | **Official Blender MCP** |
+|---|---:|---:|
+| Wall-clock | **2m 54s** | 7m 46s |
+| Total tokens | **45,605** | 64,052 |
+| Tool calls (harness) | **12** | 39 |
+| Audit-driven repair iterations | **0** | 3 |
+
+### Case Study 2 — Coffee setup on a small table
+
+Build a round table + mug + saucer + spoon + sugar pot + biscuit, save the `.blend`, render a 6-view audit.
+
+| | **Blender HTTP + bundled skill** | **Official Blender MCP** |
+|---|---:|---:|
+| Wall-clock | **1m 31s** | 3m 30s |
+| Total tokens | **40,675** | 42,311 |
+| Tool calls (harness) | **16** | 29 |
+| Audit-driven repair iterations | **1** | 2 |
+
+### Method notes
+
+- Identical prompt body sent to both sides; only the transport and the access to the bundled skill differ.
+- The HTTP plugin's bundled skill teaches the assembly rules and points at the injected helpers (`audit`, `snapshot`, `inspect`, etc.). The MCP side gets the official MCP tool schemas only — no custom reference doc — matching what a typical install gives the agent.
+- Sub-agents ran in isolated background contexts so neither side could "learn" from the other's mistakes.
+- Tokens come from harness telemetry; wall-clock was self-reported by each sub-agent.
+- Both transports talked to the same Blender process: the HTTP plugin on port 9877, the official Blender Foundation MCP add-on on port 9876.
+- These are early local tests. Results depend on the MCP server implementation, the AI client and model, prompt design, and the task itself. Treat the numbers as indicative, not universal.
+
+### What the cases suggest
+
+In both small scenes, the bundled skill kept the HTTP agent off the audit-repair loop entirely (Case 1) or limited it to one cycle (Case 2). The MCP agent eventually finished both — sometimes producing nicer audit renders because it iterated — but the cost in time, tokens, and iterations was higher. We plan to add more scenes (and more transport configurations) before drawing broader conclusions.
 
 ## Install
 
