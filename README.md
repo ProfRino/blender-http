@@ -44,7 +44,7 @@ With the official Blender [MCP](https://modelcontextprotocol.io/) server, the AI
 
 ## Install
 
-**Requirements:** Blender **4.2+** (the modern extension system was introduced in 4.2; tested on 5.1, expected to work on 4.2 through 5.x). No external Python packages — the add-on uses only Blender's bundled Python and the stdlib. The optional client (`client/send.py`) needs Python 3.x with stdlib only.
+**Requirements:** Blender **4.2+**. No external Python packages — the add-on uses only Blender's bundled Python and the stdlib. The optional client (`client/send.py`) needs Python 3.x with stdlib only.
 
 The add-on lives under Blender's `extensions/user_default/blender_http` folder. Each OS has a different parent path; copy or symlink the `blender_http/` subdirectory into it.
 
