@@ -219,6 +219,21 @@ The full list of endpoints, query parameters, and response shapes is in **[docs/
 
 The [`skill/`](skill/) folder is a Claude Code skill that teaches an AI agent how to drive this plugin — when to use streaming vs one-shot, how to write scripts as named steps, and the screenshot audit checklist for catching common AI-Blender mistakes (floating parts, wrong scale, missing materials, ...). Most agents auto-load it when the folder is in scope. See [`skill/SKILL.md`](skill/SKILL.md) for the full content.
 
+## What's in this repo
+
+```
+blender-http/
+├── blender_http/        the Blender add-on (installs into user_default/extensions)
+├── client/              send.py + send.ps1 — Python and PowerShell helpers for sending scripts
+├── docs/                protocol.md (full HTTP spec) + design.md (architecture notes)
+├── examples/            ready-to-run sample scripts (sync, generator, audit, cancel)
+├── skill/               Claude Code skill bundled for AI agents (SKILL.md + templates)
+├── install.ps1          one-line Windows installer
+├── LICENSE              MIT
+├── README.md            this file
+└── SECURITY.md          threat model and safe defaults — read before exposing the server
+```
+
 ## License
 
 MIT. Copyright 2026 Ruggiero Lovreglio. See [LICENSE](LICENSE).
