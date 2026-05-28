@@ -4,29 +4,24 @@
 
 ## How it works
 
-The add-on starts a tiny HTTP server inside Blender (default `127.0.0.1:9876`). External processes — an AI coding agent, a CLI tool, a Python script, a web page — drive Blender by POSTing Python source to the server. The server runs that code on Blender's main thread, captures stdout and the value of the last expression, and returns the result.
+The add-on starts a small web server inside Blender. Anything that can make an HTTP request — an AI agent, a one-line `curl` command, a Python script, a web page open on your laptop — can now talk to Blender directly.
+
+You send a chunk of Python code. Blender runs it. You get the result back.
 
 ```
-                       POST /  (Python source as the body)
-   external client  ────────────────────────────────────▶  Blender HTTP server
-       (curl, Python urllib,                                      │
-        Claude Code agent,                                        │ run on Blender's
-        web page, ...)                                            │ main thread via
-                                                                  │ bpy.app.timers
-                       ◀────────────────────────────────  {ok, output, result}
-                            JSON response
+   you  ──── send a script ────▶  Blender  ──── result + anything it printed ────▶  you
 ```
 
-There are two execution modes:
+You can talk to it in two ways:
 
-- **Sync** (`POST /`) — runs the script, blocks until done, returns one JSON blob with the captured stdout and the value of the last expression. Compatible with simple `curl` one-liners.
-- **Async + streaming** (`POST /jobs` → `GET /jobs/{id}/stream`) — returns a `job_id` immediately and streams events back over **Server-Sent Events**: every `print()` line, every `yield` from a `build()` generator, every `snapshot()` taken, every `progress()` update. Cancellable via `DELETE /jobs/{id}`.
+- **One-shot.** Send a script, wait, get one tidy JSON answer with anything the script printed and the value of its last line. As simple as `curl`. Best for short tasks.
+- **Live.** Send the script and watch a feed come back as Blender works — every line it prints, every named step it reaches, every screenshot it takes, in real time. Best for long builds, because you can see what's happening and stop mid-way if it looks wrong.
 
-Scripts that define a `build()` function returning a generator are run **one yield per timer tick**, which means Blender's event loop runs between steps — the viewport redraws, the UI stays responsive, and you can orbit the camera while the script executes. Objects appear progressively rather than all at once at the end.
+There's one trick worth knowing. If your script wraps its work in a `build()` function with `yield` between steps, Blender runs **one step, lets the UI breathe, runs the next step, lets the UI breathe**, and so on. The viewport keeps redrawing, you can rotate the camera while it builds, and objects appear in the scene one by one instead of all popping in at the end. It's the difference between "Blender is frozen, please wait 30 seconds" and watching the model assemble itself in front of you.
 
-Scripts get a small set of helpers injected into their namespace (`snapshot`, `audit`, `inspect`, `find`, `bbox`, `progress`, `OUTPUT`, `WORKSPACE`) so common operations don't need a Python boilerplate header.
+Every script gets a small set of helpers handed to it automatically — for taking screenshots, rendering a multi-angle audit of the scene, asking what's in the scene, and writing to a shared output folder. No imports needed; they're just available.
 
-Default port: **9876**. Default bind: `127.0.0.1` only.
+The server only listens on your own machine (`127.0.0.1`, default port `9876`). It's not on the network. See [SECURITY.md](SECURITY.md) before changing that.
 
 ## Why this exists — vs the official Blender MCP server
 
