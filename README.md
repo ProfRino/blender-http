@@ -2,6 +2,10 @@
 
 **Drive Blender from anywhere on your computer via HTTP.**
 
+A lightweight local HTTP add-on for controlling an already-open Blender session with Python — with SSE progress streaming, cooperative cancellation, screenshots, and multi-view audits. For script-heavy AI workflows it can reduce tool-description overhead and round-trips compared with many granular MCP setups.
+
+> **⚠ Security note:** Blender HTTP executes arbitrary Python inside Blender. Keep it bound to `127.0.0.1`, do not expose the port to a network, and only run scripts you trust. See [SECURITY.md](SECURITY.md) for the full threat model.
+
 ## How it works
 
 The add-on starts a small web server inside Blender. In a typical setup, the chain looks like this:
