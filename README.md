@@ -28,21 +28,23 @@ The server only listens on your own machine (`127.0.0.1`, default port `9876`). 
 
 ## Why this exists — vs the official Blender MCP server
 
-Blender has an official server based on the [Model Context Protocol](https://modelcontextprotocol.io/) (MCP). It works. But for the kind of back-and-forth an AI agent does — *"add this, screenshot it, fix that, screenshot again"* — MCP has friction that adds up. This add-on takes the same idea and strips that friction out.
+Blender has an official server based on the [Model Context Protocol](https://modelcontextprotocol.io/) (MCP). It can run arbitrary Python via an `execute_blender_code` tool — same as Blender HTTP. The difference is everything **around** that tool.
 
-**Screenshots eat your context.** MCP returns images as base64 text mixed into the response. A single full-screen screenshot is about **1.3 MB** of context the agent has to carry. A 6-view audit? Around **8 MB just for the pictures**. With Blender HTTP, screenshots go to disk; the agent only sees them if it asks. Want a tiny preview to check progress? `?size=256` gives you a ~25 KB PNG. Want to check whether anything actually changed before re-rendering? `?if-changed=<hash>` returns "nope" with no payload at all.
+**MCP makes the AI learn a vocabulary of tools.** The official MCP server bundles ~20 curated tools (object creation, materials, scene inspection, Poly Haven asset download, Hyper3D model generation, …). Every one of their schemas is loaded into the AI's context window from turn 1, whether you'll use them or not — tokens you pay before you've written a single prompt. Blender HTTP exposes one HTTP endpoint and lets the AI write the Python it already knows.
 
-**Every action is a separate round-trip.** With MCP, *"add a cube, name it, make it red, move it, take a screenshot"* is five separate request-and-response exchanges, each with its own protocol envelope. Blender HTTP lets you batch them into one round-trip — or just send one bigger script and skip the overhead entirely.
+**More tools = more decisions = more iterations.** On every step, an MCP agent has to ask itself: *"is there a curated tool for this, or do I fall back to `execute_blender_code`?"* When a curated tool is close but not quite right, you get multiple attempts: call the tool, see the result is wrong, fall back to Python anyway. That's tokens and time. With Blender HTTP that branch doesn't exist — there's only Python.
 
-**Long scripts can't be broken up — and you can't cancel them.** Both transports run `bpy` on Blender's single main thread, so for short scripts neither feels different. The gap shows on long ones. MCP's `execute_blender_code` runs your script as one chunk; if it takes 30 seconds, the UI is locked for 30 seconds and there's no way to interrupt. Blender HTTP gives you a lever: wrap the work in a `build()` generator that `yield`s between steps, and the server runs one step per timer tick. The viewport redraws between steps (objects appear one by one rather than all at the end), you can orbit the camera mid-build, and `DELETE /jobs/{id}` aborts cleanly. Same total work, much smoother experience for big jobs.
+**Common workflows become many round-trips.** *"Add a cube, name it, colour it, move it, screenshot it"* is five separate tool calls in MCP — each with its own protocol envelope and tool_result. In Blender HTTP that's one POST with a five-line script, or a batched POST with five separate scripts if you want per-step results. Fewer round-trips, less wall-clock time, less token churn.
 
-**You write everything from scratch.** MCP gives you "run this Python in Blender" and stops there. Want to know what's in the scene? Write a script that returns it. Want a 6-view audit of your model? Write the camera placement code in every project. Blender HTTP comes with that work pre-done: ask `/inspect` for a scene summary, `POST /audit` to render the audit suite, `/find` to search by name, `/bbox` for bounding boxes. All one HTTP call, all already debugged.
+**Screenshots eat your context.** MCP returns images as base64 inline in the tool_result — a full-resolution screenshot is ~1.3 MB of context the agent carries forever. A 6-view audit suite is ~8 MB just for the pictures. With Blender HTTP, screenshots go to disk; the agent only sees an image if it explicitly reads the file. `?size=256` gives a ~25 KB preview when you just want "did my change work?". `?if-changed=<hash>` returns "nothing changed" with no payload at all.
+
+**Long scripts can't be broken up — and you can't cancel them.** Both transports run `bpy` on Blender's single main thread, so for short scripts neither feels different. The gap shows on long ones. MCP's `execute_blender_code` runs your script as one chunk; if it takes 30 seconds the UI is locked for 30 seconds and there's no way to interrupt. Blender HTTP gives you a lever: wrap the work in a `build()` generator that `yield`s between steps, and the server runs one step per timer tick. The viewport redraws between steps, you can orbit while it builds, and `DELETE /jobs/{id}` aborts cleanly.
 
 ### Smaller benefits worth knowing
 
 - Responses compress with gzip if you ask — usually 3–5× smaller.
-- No SDK to install on the client side. `curl` works. Any language with an HTTP client works.
-- The legacy one-liner `POST /` with the script as the raw body still does what you'd expect, so existing scripts written for [ptrthomas/blender-agent](https://github.com/ptrthomas/blender-agent) keep running.
+- No SDK or runtime to install on the client side. `curl` works. Any language with an HTTP client works.
+- The plain `POST /` with the script as the raw body still does what you'd expect, so existing scripts written for [ptrthomas/blender-agent](https://github.com/ptrthomas/blender-agent) keep running.
 
 ## Install
 
