@@ -46,7 +46,7 @@ It also keeps a **synchronous compat endpoint** (`POST /` with the script as the
 
 ## Install
 
-**Requirements:** Blender 5.0+. No external Python packages — the add-on uses only Blender's bundled Python and the stdlib. The optional client (`client/send.py`) needs Python 3.x with stdlib only.
+**Requirements:** Blender **4.2+** (the modern extension system was introduced in 4.2; tested on 5.1, expected to work on 4.2 through 5.x). No external Python packages — the add-on uses only Blender's bundled Python and the stdlib. The optional client (`client/send.py`) needs Python 3.x with stdlib only.
 
 The add-on lives under Blender's `extensions/user_default/blender_http` folder. Each OS has a different parent path; copy or symlink the `blender_http/` subdirectory into it.
 
@@ -98,11 +98,11 @@ If you have an AI coding agent with shell access, you can hand it this prompt an
 
 > I want to install the Blender HTTP plugin into my existing Blender installation.
 >
-> The repository is `https://github.com/ProfRino/blender-http` (a Blender 5.0+ extension that runs Python over HTTP for live agent control).
+> The repository is `https://github.com/ProfRino/blender-http` (a Blender 4.2+ extension that runs Python over HTTP for live agent control).
 >
 > Please do the following, **briefly explaining each step before you run it** and **asking before any destructive action**:
 >
-> 1. **Detect my OS** (Windows / macOS / Linux) and locate my Blender installation. Report the version. The plugin requires **Blender 5.0 or higher** — abort cleanly if mine is older.
+> 1. **Detect my OS** (Windows / macOS / Linux) and locate my Blender installation. Report the version. The plugin requires **Blender 4.2 or higher** — abort cleanly if mine is older.
 >
 > 2. **Clone the repository** to a sensible location:
 >    - Windows: `%USERPROFILE%\source\blender-http`
