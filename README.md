@@ -1,10 +1,14 @@
 # Blender HTTP
 
-A Blender 5.0+ add-on that runs Python scripts over HTTP with **live streaming output**, **cancellable jobs**, and **chunked execution that keeps the viewport responsive**.
+**Drive Blender from anywhere on your computer via HTTP.**
 
-Inspired by [ptrthomas/blender-agent](https://github.com/ptrthomas/blender-agent) — rewritten from scratch to add Server-Sent Events streaming, a job queue, generator-based step execution, and a cancel API.
+This add-on runs a tiny HTTP server inside Blender that accepts Python scripts, executes them on Blender's main thread, and streams the result back over the same connection. Any external process — an AI coding agent, a CLI tool, a Python script, a web page — can build scenes, run renders, save `.blend` files, and inspect scene state by sending Python over a local socket.
 
-Default port: **9876**.
+It's a thin, fast alternative to the [Model Context Protocol](https://modelcontextprotocol.io/) Blender server: fewer round-trips for chatty agent workflows, no base64 image payloads inflating the agent's context, a generator-based execution model that **keeps the viewport responsive while scripts run**, and live progress events instead of one big result blob at the end.
+
+Default port: **9876**. Default bind: `127.0.0.1` only.
+
+Inspired by [ptrthomas/blender-agent](https://github.com/ptrthomas/blender-agent) — rewritten from scratch to add Server-Sent Events streaming, a job queue, generator-based step execution, snapshots, multi-view audit, scene introspection, batch + REPL endpoints, gzip compression, and a cancel API.
 
 ## Why this exists
 
