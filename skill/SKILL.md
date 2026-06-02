@@ -253,6 +253,7 @@ bpy.data.objects.remove(cam, do_unlink=True)
 
 When reviewing the audit images, check for these classic AI-Blender errors. **Do not report the model as complete if any of these are visible.**
 
+### Geometric correctness
 1. Floating or disconnected parts
 2. Exploded assembly
 3. Wrong scale (cube too big, radius vs diameter confusion)
@@ -261,16 +262,31 @@ When reviewing the audit images, check for these classic AI-Blender errors. **Do
 6. Gaps at joints
 7. Duplicated objects
 8. Origin / anchor problems
+
+### Materials and lighting
 9. Materials missing or wrong (still gray when they should be coloured -> wrong shading mode or missing Principled BSDF)
 10. Lighting too dim or blown out
+
+### Framing
 11. Camera too close / object cropped at edges
-12. Missing components (compare against assembly plan)
-13. Black or empty render
-14. Clipping issues (near / far planes)
-15. Object hidden behind another
-16. Model not centred in frame
-17. Top view shows only the roof — use isometric for structural check
-18. Audit cameras / gizmos leaking into renders (should not happen — `audit()` uses `view_context=False` by default)
+12. Black or empty render
+13. Clipping issues (near / far planes)
+14. Object hidden behind another
+15. Model not centred in frame
+16. Top view shows only the roof — use isometric for structural check
+17. Audit cameras / gizmos leaking into renders (should not happen — `audit()` uses `view_context=False` by default)
+
+### Completeness
+18. Missing components (compare against assembly plan)
+
+### Functional orientation — DO NOT SKIP
+19. **Chair faces the workspace.** Backrest is on the FAR side from the desk/table, not on the desk side. Someone sitting in the chair would face the monitor/work surface.
+20. **Doors swing in a usable direction** (outward from the room or into open space, not into a wall).
+21. **Drawer/handle hardware points toward the user**, not toward the wall.
+22. **Functional surfaces face the user**: monitor screen toward the chair, keyboard QWERTY row toward the chair, tap spout over the sink basin, mug handle toward the seat, etc.
+23. **Could a human use this as intended?** Mentally place a person at the workspace and check that every object is reachable, oriented, and pointing the right way.
+
+Items 19–23 are about *intent*, not geometry. They catch defects that render perfectly but are functionally broken (chair facing away from monitor, door swinging into a wall, drawer pulls embedded in cabinet back, etc.).
 
 ---
 
