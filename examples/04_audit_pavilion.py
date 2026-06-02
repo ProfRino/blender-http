@@ -1,4 +1,4 @@
-"""Build a pavilion, then render the 6-view audit suite.
+"""Build a pavilion, then capture the 6-view audit suite.
 
 Demonstrates the script-side `snapshot()` and `audit()` helpers (v0.2).
 

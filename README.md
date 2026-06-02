@@ -25,7 +25,7 @@ Two run modes:
 
 When a script is written as a series of named steps, Blender pauses between them so the viewport stays interactive — you can rotate the camera, watch objects appear one at a time, and cancel cleanly.
 
-Scripts get a few shortcuts in scope automatically: take a screenshot, render a 6-angle audit, ask what's in the scene, save to a shared output folder.
+Scripts get a few shortcuts in scope automatically: take a screenshot, capture a 6-angle audit, ask what's in the scene, save to a shared output folder.
 
 The add-on only listens on your own computer (`127.0.0.1`). See [SECURITY.md](SECURITY.md) before changing that.
 
@@ -48,7 +48,7 @@ Two small head-to-head builds where the same AI agent (general-purpose Claude Co
 
 ### Case Study 1 — Office desk setup
 
-Build a desk + chair + monitor + keyboard + mouse + potted cactus, save the `.blend`, render a 6-view audit.
+Build a desk + chair + monitor + keyboard + mouse + potted cactus, save the `.blend`, capture a 6-view audit.
 
 | | **Blender HTTP + bundled skill** | **Official Blender MCP** |
 |---|---:|---:|
@@ -59,7 +59,7 @@ Build a desk + chair + monitor + keyboard + mouse + potted cactus, save the `.bl
 
 ### Case Study 2 — Coffee setup on a small table
 
-Build a round table + mug + saucer + spoon + sugar pot + biscuit, save the `.blend`, render a 6-view audit.
+Build a round table + mug + saucer + spoon + sugar pot + biscuit, save the `.blend`, capture a 6-view audit.
 
 | | **Blender HTTP + bundled skill** | **Official Blender MCP** |
 |---|---:|---:|
@@ -79,7 +79,7 @@ Build a round table + mug + saucer + spoon + sugar pot + biscuit, save the `.ble
 
 ### What the cases suggest
 
-In both small scenes, the bundled skill kept the HTTP agent off the audit-repair loop entirely (Case 1) or limited it to one cycle (Case 2). The MCP agent eventually finished both — sometimes producing nicer audit renders because it iterated — but the cost in time, tokens, and iterations was higher. We plan to add more scenes (and more transport configurations) before drawing broader conclusions.
+In both small scenes, the bundled skill kept the HTTP agent off the audit-repair loop entirely (Case 1) or limited it to one cycle (Case 2). The MCP agent eventually finished both — sometimes producing nicer audit images because it iterated — but the cost in time, tokens, and iterations was higher. We plan to add more scenes (and more transport configurations) before drawing broader conclusions.
 
 ## Install
 

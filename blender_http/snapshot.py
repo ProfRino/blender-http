@@ -199,9 +199,10 @@ def audit(
     resolution=(1400, 1000),
     keep_cameras: bool = False,
 ) -> dict:
-    """Render the canonical 6-view audit suite. Returns {view_name: filepath}.
+    """Capture the canonical 6-view audit suite. Returns {view_name: filepath}.
 
-    mode = "opengl" (fast, recommended) or "render" (slow, photoreal).
+    mode = "opengl" (fast OpenGL workbench render, recommended) or "render"
+    (slow Cycles/Eevee, photoreal).
     Cameras are placed using scene bbox + lens FOV, then removed unless
     keep_cameras=True.
     """

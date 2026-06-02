@@ -193,7 +193,7 @@ If `save` is not set, returns raw `image/png` bytes with an `ETag` header equal 
 
 ### `POST /audit`
 
-Render the canonical 6-view audit suite (`01_front`, `02_back`, `03_left`, `04_right`, `05_top`, `06_isometric`). Cameras are placed automatically with bbox-aware framing, then removed.
+Capture the canonical 6-view audit suite (`01_front`, `02_back`, `03_left`, `04_right`, `05_top`, `06_isometric`). Cameras are placed automatically with bbox-aware framing, then removed. By default uses a fast OpenGL workbench render through each camera; pass `mode=render` for full Cycles/Eevee.
 
 | Query | Default | Meaning |
 |---|---|---|
